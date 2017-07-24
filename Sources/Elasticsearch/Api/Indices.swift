@@ -1,7 +1,7 @@
 import Foundation
 
 public extension ESClient {
-    public func createIndex(name: ESIndexNameable, body: JSONStringable? = nil) throws -> ESResponse {
+    public func createIndex(name: ESIndexNameable, body: JSONStringRepresentable? = nil) throws -> ESResponse {
         let path = esPathify(prefixIndex(name))
         
         return request(method: RequestMethod.PUT, path: path, requestBody: body ?? nil)
@@ -26,7 +26,7 @@ public extension ESClient {
         }
     }
     
-    public func ensureIndex(name: ESIndexNameable, body: JSONStringable) throws {
+    public func ensureIndex(name: ESIndexNameable, body: JSONStringRepresentable) throws {
         if (!indexExists(name: name)) {
             _ = try createIndex(name: name, body: body)
         }

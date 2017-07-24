@@ -9,23 +9,23 @@
 import Foundation
 import JSON
 
-public protocol JSONStringable {
+public protocol JSONStringRepresentable {
     func JSONString(pretty: Bool) -> String?
 }
 
-extension JSONStringable {
+extension JSONStringRepresentable {
     public func JSONString() -> String? {
         return JSONString(pretty: false)
     }
 }
 
-extension String : JSONStringable {
+extension String : JSONStringRepresentable {
     public func JSONString(pretty: Bool) -> String? {
         return self
     }
 }
 
-extension Dictionary: JSONStringable {
+extension Dictionary: JSONStringRepresentable {
     public func JSONString(pretty: Bool) -> String? {
         guard Key.self is String.Type else { return nil }
         let options = pretty ? JSONSerialization.WritingOptions.prettyPrinted : JSONSerialization.WritingOptions.init(rawValue: 0)
@@ -34,7 +34,7 @@ extension Dictionary: JSONStringable {
     }
 }
 
-extension JSON : JSONStringable {
+extension JSON : JSONStringRepresentable {
     public func JSONString(pretty: Bool) -> String? {
         guard let bytes = try? self.serialize(prettyPrint: pretty) else { return nil }
         guard let string = String(bytes: bytes, encoding: .utf8) else { return nil }

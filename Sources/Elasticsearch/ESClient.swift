@@ -30,7 +30,7 @@ public class ESClient {
         return _transport.request(method: method, path: path, parameters: parameters, requestBody: requestBody)
     }
 
-    public func request(method: RequestMethod = .GET, path: String = "", parameters: ESParams = [:], requestBody: JSONStringable? = nil) -> ESResponse {
+    public func request(method: RequestMethod = .GET, path: String = "", parameters: ESParams = [:], requestBody: JSONStringRepresentable? = nil) -> ESResponse {
         return _transport.request(method: method, path: path, parameters: parameters, requestBody: requestBody?.JSONString() ?? nil)
     }
 }

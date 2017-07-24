@@ -52,7 +52,7 @@ public class ESBulkProxy {
         totalRecords += 1
     }
     
-    public func append(action: ESBulkAction, index: ESIndexNameable, type: String, id: String, data: JSONStringable?) throws {
+    public func append(action: ESBulkAction, index: ESIndexNameable, type: String, id: String, data: JSONStringRepresentable?) throws {
         guard let prefixedIndex = client.prefixIndex(index).string else { throw ESError.missingIndexName }
         var actionBytes = "{\"\(action.rawValue)\":{\"_index\":\"\(prefixedIndex)\",\"_type\":\"\(type)\",\"_id\":\"\(id)\"}}\n".bytes
         if let jsonBytes = data?.JSONString()?.bytes {

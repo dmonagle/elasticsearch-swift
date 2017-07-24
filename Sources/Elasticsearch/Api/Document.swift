@@ -34,4 +34,32 @@ public extension ESClient {
         let path = esPathify(index != nil ? prefixIndex(index!) : nil, type, "_search")
         return request(method: .POST, path: path, requestBody: body)
     }
+    
+    public func index(parameters: ESParams = [:], body: JSONStringRepresentable) throws -> ESResponse {
+        let index = try parameters.enforce("index")
+        let type = try parameters.enforce("type")
+
+        let id = parameters["id"]
+        let method : RequestMethod = (id != nil ? .PUT : .POST)
+        let requestParams = parameters.filter(include: ["consistency", "op_type", "parent", "percolate", "refresh", "replication", "routing",
+                                                        "timeout", "timestamp", "ttl", "version", "version_type"], includeCommon: true, includeCommonQuery: true)
+        let path = esPathify(index, type, id)
+        
+        return request(method: method, path: path, parameters: requestParams, requestBody: body)
+    }
+    
+    
+    public func index(index: ESIndexNameable, type: String, data: JSONStringRepresentable, parameters: ESParams = [:]) throws -> ESResponse {
+        var requestParams = parameters
+        requestParams["index"] = prefixIndex(index)
+        requestParams["type"] = ESParam(type)
+        
+        return try self.index(parameters: requestParams, body: data)
+    }
+    
+    public func index(_ indexable: ESIndexable, in context: ESContext? = nil, parameters: ESParams = [:]) throws -> ESResponse {
+        var requestParams = parameters
+        requestParams["id"] = ESParam(indexable.esId)
+        return try self.index(index: indexable.esIndex, type: indexable.esType, data: indexable.serializeES(in: context), parameters: requestParams)
+    }
 }

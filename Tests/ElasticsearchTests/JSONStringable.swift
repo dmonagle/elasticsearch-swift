@@ -1,5 +1,5 @@
 //
-//  JSONStringable.swift
+//  JSONStringRepresentable.swift
 //  ElasticsearchFoundation
 //
 //  Created by David Monagle on 21/7/17.
@@ -9,7 +9,7 @@
 import XCTest
 @testable import Elasticsearch
 
-class JsonStringableTest: XCTestCase {
+class JSONStringRepresentableTest: XCTestCase {
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
