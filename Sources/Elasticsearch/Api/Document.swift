@@ -31,7 +31,7 @@ public extension ESClient {
     }
     
     /// Search a single index, or all indices
-    public func search(index: ESIndexNameable? = nil, type: String? = nil, body: JSONStringRepresentable, parameters: ESParams) throws -> ESResponse {
+    public func search(index: ESIndexNameable? = nil, type: String? = nil, body: JSONStringRepresentable, parameters: ESParams = [:]) throws -> ESResponse {
         var requestParams = parameters
         if let index = index { requestParams["index"] = prefixIndex(index) }
         if let type = type { requestParams["type"] = ESParam(type) }
