@@ -20,7 +20,7 @@ public extension ESClient {
         return try get(parameters: parameters)
     }
     
-    public func search(parameters: ESParams = [:], body: String) throws -> ESResponse {
+    public func search(parameters: ESParams, body: JSONStringRepresentable) throws -> ESResponse {
         let index = try parameters.get("index", default: "_all")
         let type = parameters["type"]
         let requestParams = parameters.filter(include: [
@@ -30,9 +30,13 @@ public extension ESClient {
         return request(method: .POST, path: path, parameters: requestParams, requestBody: body)
     }
     
-    public func search(index: ESIndexNameable? = nil, type: String? = nil, body: String) throws -> ESResponse {
-        let path = esPathify(index != nil ? prefixIndex(index!) : nil, type, "_search")
-        return request(method: .POST, path: path, requestBody: body)
+    /// Search a single index, or all indices
+    public func search(index: ESIndexNameable? = nil, type: String? = nil, body: JSONStringRepresentable, parameters: ESParams) throws -> ESResponse {
+        var requestParams = parameters
+        if let index = index { requestParams["index"] = prefixIndex(index) }
+        if let type = type { requestParams["type"] = ESParam(type) }
+
+        return try search(parameters: requestParams, body: body)
     }
     
     public func index(parameters: ESParams = [:], body: JSONStringRepresentable) throws -> ESResponse {
