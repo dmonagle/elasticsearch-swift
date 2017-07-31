@@ -26,7 +26,7 @@ public extension ESClient {
         let requestParams = parameters.filter(include: [
             "analyzer", "analyze_wildcard", "default_operator", "df", "explain", "fielddata_fields", "docvalue_fields", "stored_fields", "fields", "from", "ignore_indices", "ignore_unavailable", "allow_no_indices", "expand_wildcards", "lenient", "lowercase_expanded_terms", "preference", "q", "query_cache", "request_cache", "routing", "scroll", "search_type", "size", "sort", "source", "_source", "_source_include", "_source_exclude", "stored_fields", "stats", "suggest_field", "suggest_mode", "suggest_size", "suggest_text", "terminate_after", "timeout", "typed_keys", "version", "batched_reduce_size", "max_concurrent_shard_requests", "pre_filter_shard_size"])
         
-        let path = esPathify(prefixIndex(index), type, "_search")
+        let path = esPathify(index, type, "_search")
         return request(method: .POST, path: path, parameters: requestParams, requestBody: body)
     }
     
