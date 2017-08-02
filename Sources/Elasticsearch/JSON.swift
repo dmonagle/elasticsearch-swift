@@ -14,6 +14,7 @@ public protocol JSONStringRepresentable {
 }
 
 extension JSONStringRepresentable {
+    /// Convenience to return a non pretty JSON String
     public func JSONString() -> String? {
         return JSONString(pretty: false)
     }

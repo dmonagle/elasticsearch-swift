@@ -18,11 +18,7 @@ public extension ESClient {
         var requestParams = parameters
         requestParams["index"] = prefixIndex(index)
         let result = try count(parameters: requestParams)
-        
-        if let json = result.json?.JSONString(pretty: true) {
-            print(json)
-        }
-        
-        return result.json?["count"]?.int ?? 0
+        guard let json = result.body?.json else { return 0 }
+        return json["count"]?.int ?? 0
     }
 }

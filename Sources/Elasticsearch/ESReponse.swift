@@ -12,30 +12,28 @@ public enum ESResponse {
     case ok(HTTPURLResponse, ESResponseBody?)
     case error(ESError)
 
+    /// Returns true if the call was successful
     public var success: Bool {
         if case .ok = self {
             return true
         }
         return false
     }
-}
-
-public struct ESResponseBody : CustomStringConvertible {
-    public var data : Data
     
-    public init(data: Data) { self.data = data }
-    
-    public func toDict() -> Dictionary<String, Any>? {
-        if let json = try? JSONSerialization.jsonObject(with: data, options: []) as! [String: Any] {
-            return json
+    /// Returns the error if there was one, otherwise returns nil
+    public var error: ESError? {
+        if case .error(let error) = self {
+            return error
         }
-        else {
-            return nil
-        }
+        return nil
     }
     
-    public var description: String {
-        return String(data: data, encoding: .utf8) ?? ""
+    /// Returns the body of the request if the request was successful. Otherwise returns nil
+    public var body : ESResponseBody? {
+        if case .ok(_, let body) = self {
+            return body
+        }
+        return nil
     }
 }
 

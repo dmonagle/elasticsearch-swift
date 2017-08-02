@@ -49,7 +49,7 @@ extension ESParamRepresentable {
     public func elasticsearchEscape() -> ESParamRepresentable {
         return self.makeESParam().string?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? self
     }
-
+    
     public func esListify() -> ESParamRepresentable {
         let param = self.makeESParam()
         if let array : [ESParamRepresentable] = param.array {
@@ -59,7 +59,7 @@ extension ESParamRepresentable {
             return elasticsearchEscape()
         }
     }
-
+    
     public func esPathify() -> ESParamRepresentable {
         let param = self.makeESParam()
         if let array : [ESParamRepresentable] = param.array {
@@ -75,6 +75,21 @@ extension ESParamRepresentable {
 // MARK: - ESParams
 
 public typealias ESParams = Dictionary<String, ESParam>
+
+extension Dictionary where Key == String, Value == ESParam {
+    func queryString() -> String {
+        var components: [String] = []
+        
+        for (key, value) in self {
+            if let encodedKey = key.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed),
+                let encodedValue = value.makeESParam().string?.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) {
+                components.append("\(encodedKey)=\(encodedValue)")
+            }
+        }
+        
+        return components.joined(separator: "&")
+    }
+}
 
 extension Array where Element == ESParamRepresentable {
     func esListify() -> String {
@@ -126,7 +141,7 @@ extension Dictionary where Key == String, Value == ESParam {
         guard let result = self[path] else { throw ESError.emptyRequiredParameter(path) }
         return result
     }
-
+    
     public func get(_ path: String, default defaultValue: String) throws -> ESParam {
         guard let value = self[path] else { return ESParam(defaultValue) }
         return value
@@ -136,7 +151,7 @@ extension Dictionary where Key == String, Value == ESParam {
         var keys : [String] = include
         if includeCommon { keys += ES_COMMON_PARAMETERS }
         if includeCommonQuery { keys += ES_COMMON_QUERY_PARAMETERS }
-
+        
         let filtered = self.filter {
             key, _ in
             return keys.contains(key)
@@ -148,7 +163,7 @@ extension Dictionary where Key == String, Value == ESParam {
         
         return result
     }
-
+    
     /// Sets a key to the given value if it's not already set
     public mutating func setDefault(for key: Key, to value: String) {
         if (self[key] == nil) { self[key] = ESParam(value) }

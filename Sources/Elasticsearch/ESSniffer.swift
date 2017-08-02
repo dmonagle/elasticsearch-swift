@@ -13,7 +13,7 @@ class ESSniffer {
         let response = transport.request(method: .GET, path: "_nodes/http")
         switch response {
         case .ok(_, let body):
-            guard let json = body?.toDict() else { return [] }
+            guard let json = body?.toDictionary() else { return [] }
             guard let nodes = json["nodes"] as? [String: Any] else { return [] }
             
             var result : [URLComponents] = []

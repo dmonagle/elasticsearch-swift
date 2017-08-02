@@ -67,13 +67,13 @@ open class ESTransport {
         }
     }
     
-    /** 
-        Returns a connection from the connection pool by delegating to Collection.
- 
-        Resurrects dead connection if the resurrectAfter timeout has passed.
-        Increments the counter and performs connection reloading if the `reload_connections` option is set.
- 
-        - returns: ESConnection
+    /**
+     Returns a connection from the connection pool by delegating to Collection.
+     
+     Resurrects dead connection if the resurrectAfter timeout has passed.
+     Increments the counter and performs connection reloading if the `reload_connections` option is set.
+     
+     - returns: ESConnection
      */
     public func getConnection() -> ESConnection? {
         if (_connectionPool.length == 0) { buildConnections() }
@@ -111,12 +111,13 @@ open class ESTransport {
     }
     
     /**
-        Makes an asynchronous request and calls the callback method, passing in the `ESResponse`
-    **/
+     Makes an asynchronous request and calls the callback method, passing in the `ESResponse`
+     **/
     public func request(connection: ESConnection? = nil, method: RequestMethod, path: String = "", parameters: ESParams = [:], requestBody: String? = nil, callback: @escaping (ESResponse) -> ()) {
         if let connection = connection ?? getConnection() {
-            
-            if let url = connection.host.url {
+            var queryComponents = connection.host
+            queryComponents.query = parameters.queryString()
+            if let url = queryComponents.url {
                 let requestURL = url.appendingPathComponent(path)
                 var request = URLRequest(url: requestURL)
                 request.httpMethod = method.rawValue
@@ -166,7 +167,7 @@ open class ESTransport {
     public func request(connection: ESConnection? = nil, method: RequestMethod, path: String = "", parameters: ESParams = [:], requestBody: String? = nil) -> ESResponse {
         var result : ESResponse?
         let semaphore = DispatchSemaphore(value: 0)
-
+        
         var retries = 0
         
         repeat {
@@ -193,12 +194,12 @@ open class ESTransport {
                 default:
                     result = response
                 }
-
+                
                 semaphore.signal()
             }
             semaphore.wait()
         } while (result == nil)
-
+        
         return result!
     }
 }
