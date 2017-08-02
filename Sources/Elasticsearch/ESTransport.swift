@@ -141,12 +141,23 @@ open class ESTransport {
                     }
                     else {
                         if let httpResponse = response as? HTTPURLResponse {
-                            if let data = data {
-                                callback(.ok(httpResponse, ESResponseBody(data: data)))
+                            switch(httpResponse.statusCode) {
+                            case 200..<300:
+                                if let data = data {
+                                    callback(.ok(httpResponse, ESResponseBody(data: data)))
+                                }
+                                else {
+                                    callback(.ok(httpResponse, nil))
+                                }
+                            default:
+                                if let data = data {
+                                    callback(.error(.apiError(httpResponse, ESResponseBody(data: data))))
+                                }
+                                else {
+                                    callback(.error(.apiError(httpResponse, nil)))
+                                }
                             }
-                            else {
-                                callback(.ok(httpResponse, nil))
-                            }
+                            
                         }
                         else {
                             callback(.error(.invalidHttpResponse(response)))

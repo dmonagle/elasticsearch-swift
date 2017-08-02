@@ -16,7 +16,7 @@ public enum ESError : Error {
     case invalidJsonResponse(Data)
     case missingRequiredParameter(String)
     case emptyRequiredParameter(String)
-    case apiError(HTTPURLResponse, ESResponseBody)
+    case apiError(HTTPURLResponse, ESResponseBody?)
     case paramsNotAnObject
     case missingIndexName
     case indexFileNotFound(String)
