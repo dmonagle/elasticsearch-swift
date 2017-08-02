@@ -29,20 +29,20 @@ public struct ESResponseBody : CustomStringConvertible {
 
 extension ESResponseBody {
     /// Returns a dictionary object of the hits. If hits doesn't exist, returns an empty dictionary
-    func extractHitsDictionary() -> [String: Any] {
+    public func extractHitsDictionary() -> [String: Any] {
         guard let dict = toDictionary() else { return [:] }
         guard let hits = dict["hits"] as? [String: Any] else { return [:] }
         return hits
     }
     
     /// Returns an array of dictionaries containing the hits. Return an empty array if hits doesn't exist
-    func extractHitsDataDictionary() -> [[String: Any]] {
+    public func extractHitsDataDictionary() -> [[String: Any]] {
         guard let hitsData = extractHitsDictionary()["hits"] as? [[String: Any]] else { return [] }
         return hitsData
     }
     
     /// Returns an array of dictionaries containing the hit sources. Return an empty array if hits doesn't exist
-    func extractSourcesDictionary() -> [[String: Any]] {
+    public func extractSourcesDictionary() -> [[String: Any]] {
         return extractHitsDataDictionary().map { $0["_source"] as? [String: Any] }.filter { $0 != nil }.map { $0! }
     }
 }
