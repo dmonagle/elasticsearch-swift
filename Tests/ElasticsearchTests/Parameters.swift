@@ -10,6 +10,7 @@ import XCTest
 @testable import Elasticsearch
 
 class ParametersTest: XCTestCase {
+    var esClient : ESClient = ESClient()
     
     override func setUp() {
         super.setUp()
@@ -60,24 +61,18 @@ class ParametersTest: XCTestCase {
         XCTAssertThrowsError(try _ = params.enforce("five"), "five should not exist")
     }
     
-    func test() {
+    func testValidateAndExtractQuery() throws {
+        
         let params : ESParams = [
             "pretty": "true",
             "field": "name",
-            "junk": "remove",
             "mine": "special"
         ]
         
-        let e1 = params.filter(includeCommonQuery: true)
-        XCTAssertEqual(e1["junk"], nil)
-        XCTAssertEqual(e1["mine"], nil)
-        XCTAssertEqual(e1["pretty"], "true") // Common Query
-        XCTAssertEqual(e1["field"], "name") // Common
 
-        let e2 = params.filter(include: ["mine"])
-        XCTAssertEqual(e2["junk"], nil)
-        XCTAssertEqual(e2["mine"], "special")
-        XCTAssertEqual(e2["pretty"], nil) // Common Query
-        XCTAssertEqual(e2["field"], "name") // Common
+        let q2 = try esClient.validateAndExtractQuery(parameters: params, include: ["mine"])
+        XCTAssertEqual(q2["mine"], "special") // The included value makes it through
+        XCTAssertEqual(q2["pretty"], "true") // Common Query Parameter makes it through
+        XCTAssertEqual(q2["field"], nil) // Common validates but will not end up in the query
     }
 }

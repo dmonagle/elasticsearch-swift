@@ -164,7 +164,7 @@ public class ConnectionPool {
             _connections.append(connection)
         }
         else {
-            throw ESError.invalidConnection(connection)
+            throw ESError.invalidURL(connection.host)
         }
     }
 }

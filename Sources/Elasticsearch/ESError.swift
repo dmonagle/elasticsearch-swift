@@ -9,7 +9,8 @@
 import Foundation
 
 public enum ESError : Error {
-    case invalidConnection(ESConnection)
+    case invalidURL(URLComponents)
+    case invalidParameters(key: String, parameters: ESParams)
     case noConnectionsAvailable
     case requestError(URLResponse?, Error, Data?)
     case invalidHttpResponse(URLResponse?)
@@ -27,8 +28,8 @@ public enum ESError : Error {
 extension ESError : CustomStringConvertible {
     public var description: String {
         switch self {
-        case .invalidConnection(let connection):
-            return "Attempted to add a connection to a ConnectionPool but it has no valid URL: \(connection)"
+        case .invalidURL(let components):
+            return "Invalid URL Components: \(components)"
         case .noConnectionsAvailable:
             return "No connections available"
         case .requestError(let response, let error, let data):
@@ -42,7 +43,7 @@ extension ESError : CustomStringConvertible {
         case .emptyRequiredParameter(let name):
             return "Required parameter is present but empty: \(name)"
         case .apiError(let response, let body):
-            return "Elasticsearch API returned an error: \(response.statusCode)\n\(body)"
+            return "Elasticsearch API returned an error: \(response.statusCode)\n\(String(describing: body))"
         default:
             return "Elasticsearch Error"
         }

@@ -28,6 +28,7 @@ public struct ESTransportSettings {
 
 open class ESTransport {
     public var transportProtocol : String = "http"
+    public var logger : ESLogDelegate? = nil
     internal var _hosts : [URLComponents] = []
     internal var _connectionPool : ConnectionPool = ConnectionPool()
     internal var _connectionCounter : Int = 0
@@ -113,16 +114,20 @@ open class ESTransport {
     /**
      Makes an asynchronous request and calls the callback method, passing in the `ESResponse`
      **/
-    public func request(connection: ESConnection? = nil, method: RequestMethod, path: String = "", parameters: ESParams = [:], requestBody: String? = nil, callback: @escaping (ESResponse) -> ()) {
+    public func request(connection: ESConnection? = nil, method: RequestMethod, path: String = "", query: ESParams = [:], requestBody: String? = nil, callback: @escaping (ESResponse) -> ()) {
         if let connection = connection ?? getConnection() {
-            var queryComponents = connection.host
-            queryComponents.query = parameters.queryString()
-            if let url = queryComponents.url {
+            var urlComponents = connection.host
+            //urlComponents.path = urlComponents.path.app
+            urlComponents.query = query.queryString()
+            if let url = urlComponents.url {
                 let requestURL = url.appendingPathComponent(path)
                 var request = URLRequest(url: requestURL)
                 request.httpMethod = method.rawValue
                 request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
                 request.timeoutInterval = _settings.requestTimeout
+
+                logger?.log(.info, message: "\(method) \(path)?\(query.queryString())")
+
                 if let body = requestBody {
                     request.httpBody = body.data(using: .utf8)
                     // As there is an issue sending a body with a GET, we take the advice of Elasticsearch and change the request to a .POST
@@ -130,9 +135,17 @@ open class ESTransport {
                     // From https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
                     // Both HTTP GET and HTTP POST can be used to execute search with body. Since not all clients support GET with body, POST is allowed as well.
                     if (method == .GET) {
+                        logger?.log(.debug, message: "Changing GET to POST as there is a request body")
                         request.httpMethod = "POST"
                     }
+                    if body.lengthOfBytes(using: .utf8) <= 1024 {
+                        logger?.log(.debug, message: "Request body:\n\(body)")
+                    }
+                    else {
+                        logger?.log(.debug, message: "Request body not logged as it is greater that 1024 bytes")
+                    }
                 }
+                
                 
                 let task = session.dataTask(with: request) {
                     (data, response, error) in
@@ -167,7 +180,7 @@ open class ESTransport {
                 task.resume()
             }
             else {
-                callback(.error(ESError.invalidConnection(connection)))
+                callback(.error(ESError.invalidURL(urlComponents)))
             }
         }
         else {
@@ -175,31 +188,33 @@ open class ESTransport {
         }
     }
     
-    public func request(connection: ESConnection? = nil, method: RequestMethod, path: String = "", parameters: ESParams = [:], requestBody: String? = nil) -> ESResponse {
+    public func request(connection: ESConnection? = nil, method: RequestMethod, path: String = "", query: ESParams = [:], requestBody: String? = nil) -> ESResponse {
         var result : ESResponse?
         let semaphore = DispatchSemaphore(value: 0)
         
         var retries = 0
         
         repeat {
-            request(connection: connection, method: method, path: path, parameters: parameters, requestBody: requestBody) {
+            request(connection: connection, method: method, path: path, query: query, requestBody: requestBody) {
                 response in
                 switch response {
                 case .error(let error):
+                    self.logger?.log(.error, message: error.description)
+
                     switch error {
-                        
                     case .apiError(_, _):
                         // Do not retry for these error types
                         result = response // No more retrying
                     default:
                         // Retry
                         if (!self._settings.retryOnFailure || retries == self._settings.maxRetries) {
-                            debugPrint("Max retries reached")
+                            self.logger?.log(.error, message: "Max retries reached")
+
                             result = response // No more retrying
                         }
                         else {
                             retries += 1
-                            debugPrint("Retry \(retries)")
+                            self.logger?.log(.warning, message: "Retrying request \(retries)")
                         }
                     }
                 default:

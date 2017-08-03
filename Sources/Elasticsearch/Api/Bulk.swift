@@ -19,10 +19,10 @@ public extension ESClient {
     public func bulk(parameters: ESParams = [:]) throws -> ESResponse {
         let body = try parameters.enforce("body").string
         
-        let requestParams = parameters.filter(include: ["consistency", "refresh", "replication", "type", "timeout"])
+        let query = try validateAndExtractQuery(parameters: parameters, include: ["consistency", "refresh", "replication", "type", "timeout"])
         
         let path = esPathify(parameters["index"], parameters["index"], "_bulk")
-        return request(path: path, parameters: requestParams, requestBody: body)
+        return request(path: path, query: query, requestBody: body)
     }
     
     public func bulk(body: String, parameters: ESParams = [:]) throws -> ESResponse {

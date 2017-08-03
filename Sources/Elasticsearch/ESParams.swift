@@ -13,6 +13,9 @@ import Node
 /// parameters like index, type and id are not included  as they are normally passed in the path of the request
 let ES_COMMON_PARAMETERS = [
     "ignore",
+    "index",
+    "type",
+    "id",
     "body",
     "node_id",
     "name",
@@ -145,23 +148,6 @@ extension Dictionary where Key == String, Value == ESParam {
     public func get(_ path: String, default defaultValue: String) throws -> ESParam {
         guard let value = self[path] else { return ESParam(defaultValue) }
         return value
-    }
-    
-    public func filter(include: [String] = [], includeCommon: Bool = true, includeCommonQuery: Bool = false) -> ESParams {
-        var keys : [String] = include
-        if includeCommon { keys += ES_COMMON_PARAMETERS }
-        if includeCommonQuery { keys += ES_COMMON_QUERY_PARAMETERS }
-        
-        let filtered = self.filter {
-            key, _ in
-            return keys.contains(key)
-        }
-        
-        var result : ESParams = [:]
-        
-        for (key,value) in filtered { result[key] = value }
-        
-        return result
     }
     
     /// Sets a key to the given value if it's not already set
