@@ -10,7 +10,6 @@ public extension ESClient {
         
         let path = esPathify(index.esListify(), parameters["type"]?.esListify(), "_count")
         
-        
         return request(path: path, query: query, requestBody: body)
     }
     

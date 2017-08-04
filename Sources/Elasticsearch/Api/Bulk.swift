@@ -20,8 +20,7 @@ public extension ESClient {
         let body = try parameters.enforce("body").string
         
         let query = try validateAndExtractQuery(parameters: parameters, include: ["consistency", "refresh", "replication", "type", "timeout"])
-        
-        let path = esPathify(parameters["index"], parameters["index"], "_bulk")
+        let path = esPathify(parameters["index"], parameters["type"], "_bulk")
         return request(path: path, query: query, requestBody: body)
     }
     
