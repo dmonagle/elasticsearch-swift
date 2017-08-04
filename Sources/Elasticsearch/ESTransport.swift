@@ -129,20 +129,23 @@ open class ESTransport {
                 logger?.log(.info, message: "\(method) \(path)?\(query.queryString())")
 
                 if let body = requestBody {
-                    request.httpBody = body.data(using: .utf8)
-                    // As there is an issue sending a body with a GET, we take the advice of Elasticsearch and change the request to a .POST
-                    //
-                    // From https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
-                    // Both HTTP GET and HTTP POST can be used to execute search with body. Since not all clients support GET with body, POST is allowed as well.
-                    if (method == .GET) {
-                        logger?.log(.debug, message: "Changing GET to POST as there is a request body")
-                        request.httpMethod = "POST"
-                    }
-                    if body.lengthOfBytes(using: .utf8) <= 1024 {
-                        logger?.log(.debug, message: "Request body:\n\(body)")
-                    }
-                    else {
-                        logger?.log(.debug, message: "Request body not logged as it is greater that 1024 bytes")
+                    if body.characters.count > 0 {
+                        request.httpBody = body.data(using: .utf8)
+                        // As there is an issue sending a body with a GET, we take the advice of Elasticsearch and change the request to a .POST
+                        //
+                        // From https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
+                        // Both HTTP GET and HTTP POST can be used to execute search with body. Since not all clients support GET with body, POST is allowed as well.
+                        if (method == .GET) {
+                            logger?.log(.debug, message: "Changing GET to POST as there is a request body")
+                            request.httpMethod = "POST"
+                        }
+                        
+                        if body.lengthOfBytes(using: .utf8) <= 1024 {
+                            logger?.log(.debug, message: "Request body:\n\(body)")
+                        }
+                        else {
+                            logger?.log(.debug, message: "Request body not logged as it is greater that 1024 bytes")
+                        }
                     }
                 }
                 
