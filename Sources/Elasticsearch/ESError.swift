@@ -22,7 +22,7 @@ public enum ESError : Error {
     case missingIndexName
     case indexFileNotFound(String)
     case invalidBodyData(Data)
-    case responseMissingExpectedPath(String, ESResponseBody?)
+    case responseMissingExpectedPath(String, JSONStringRepresentable)
     case unknown
 }
 
@@ -45,8 +45,8 @@ extension ESError : CustomStringConvertible {
             return "Required parameter is present but empty: \(name)"
         case .apiError(let response, let body):
             return "Elasticsearch API returned an error: \(response.statusCode)\n\(String(describing: body))"
-        case .responseMissingExpectedPath(let path, let body):
-            return "Elasticsearch API response was missing expected path '\(path)':\n\(String(describing: body))"
+        case .responseMissingExpectedPath(let path, let json):
+            return "Elasticsearch API response was missing expected path '\(path)':\n\(String(describing: json))"
         default:
             return "Elasticsearch Error"
         }
