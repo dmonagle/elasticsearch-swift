@@ -18,12 +18,21 @@ public enum RequestMethod : String {
 }
 
 public struct ESTransportSettings {
-    public var retryOnFailure : Bool = true
-    public var reloadAfter : Int = 10000 /// Requests
-    public var resurrectAfter : Int = 60 /// Seconds
-    public var maxRetries = 3 /// Requests
-    public var baseConnectionTimeout : TimeInterval = 60 /// The base time a connection stays dead for
-    public var requestTimeout : TimeInterval = 15 /// Timeout for each HTTPRequest
+    public var retryOnFailure : Bool
+    public var reloadAfter : Int /// Requests
+    public var resurrectAfter : Int /// Seconds
+    public var maxRetries : Int /// Requests
+    public var baseConnectionTimeout : TimeInterval /// The base time a connection stays dead for
+    public var requestTimeout : TimeInterval /// Timeout for each HTTPRequest
+    
+    public init(retryOnFailure : Bool = true, reloadAfter : Int = 1000, resurrectAfter : Int = 60, maxRetries : Int = 3, baseConnectionTimeout : TimeInterval = 60, requestTimeout : TimeInterval = 15) {
+        self.retryOnFailure = retryOnFailure
+        self.reloadAfter = reloadAfter
+        self.resurrectAfter = resurrectAfter
+        self.maxRetries = maxRetries
+        self.baseConnectionTimeout = baseConnectionTimeout
+        self.requestTimeout = requestTimeout
+    }
 }
 
 open class ESTransport {
