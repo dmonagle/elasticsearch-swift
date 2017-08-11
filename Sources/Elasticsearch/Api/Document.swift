@@ -1,4 +1,5 @@
 public extension ESClient {
+    // MARK: - Get
     public func get(parameters: ESParams = [:]) throws -> ESResponse {
         let index = try parameters.enforce("index")
         let id = try parameters.enforce("id")
@@ -20,6 +21,8 @@ public extension ESClient {
         return try get(parameters: parameters)
     }
     
+    // MARK: - Search
+
     public func search(parameters: ESParams, body: JSONStringRepresentable) throws -> ESResponse {
         let index = try parameters.get("index", default: "_all")
         let type = parameters["type"]
@@ -38,6 +41,8 @@ public extension ESClient {
 
         return try search(parameters: requestParams, body: body)
     }
+    
+    // MARK: - Index
     
     public func index(parameters: ESParams = [:], body: JSONStringRepresentable) throws -> ESResponse {
         let index = try parameters.enforce("index")
@@ -66,4 +71,27 @@ public extension ESClient {
         requestParams["id"] = ESParam(indexable.esId)
         return try self.index(index: indexable.esIndex, type: indexable.esType, data: indexable.serializeES(in: context), parameters: requestParams)
     }
+    
+    // MARK: - Delete
+    
+    public func delete(parameters: ESParams = [:]) throws -> ESResponse {
+        let index = try parameters.enforce("index")
+        let type = try parameters.enforce("type")
+        let id = try parameters.enforce("id")
+
+        let query = try validateAndExtractQuery(parameters: parameters, include: ["consistency", "parent", "refresh", "replication", "routing", "timeout", "version", "version_type"])
+        let path = esPathify(index, type, id)
+        
+        return request(method: .DELETE, path: path, query: query)
+    }
+    
+    public func delete(index: ESIndexNameable, type: String, id: String, parameters: ESParams = [:]) throws -> ESResponse {
+        let parameters : ESParams = ["index": ESParam(prefixIndex(index)), "type": ESParam(type), "id": ESParam(id)]
+        return try delete(parameters: parameters)
+    }
+    
+    public func delete(_ indexable: ESIndexable, parameters: ESParams = [:]) throws -> ESResponse {
+        return try self.delete(index: indexable.esIndex, type: indexable.esType, id: indexable.esId, parameters: parameters)
+    }
+    
 }
