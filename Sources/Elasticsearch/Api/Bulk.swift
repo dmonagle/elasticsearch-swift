@@ -9,10 +9,10 @@ import Foundation
 import JSON
 
 public enum ESBulkAction: String {
-    case index
-    case create
-    case delete
-    case update
+    case index /// Will add or replace a document as necessary
+    case create /// Will fail if a document with the same index and type exists already
+    case delete /// Does not expect a source on the following line, and has the same semantics as the standard delete API
+    case update /// Expects that the partial doc, upsert and script and its options are specified on the next line. Fails if it doesn't exist.
 }
 
 public extension ESClient {

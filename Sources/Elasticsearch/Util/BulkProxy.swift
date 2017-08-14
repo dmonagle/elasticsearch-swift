@@ -27,7 +27,7 @@ public class ESBulkProxy {
         buffer = []
         recordsInBuffer = 0
     }
-
+    
     private func ensureBufferEndsWithNewline() {
         if buffer.last != NewLine { buffer.append(NewLine)}
     }
@@ -39,11 +39,11 @@ public class ESBulkProxy {
         let _ = try client.bulk(body: data)
         resetBuffer()
     }
-
+    
     public func append(input: String) throws {
         try append(bytes: input.bytes)
     }
-
+    
     internal func append(bytes: [UInt8]) throws {
         if bytes.count > threshhold { threshhold = bytes.count } // If a single input doesn't fit within the threshold, expand the threshold to allow it
         if bytes.count > (threshhold - buffer.count) { try flush() } // Flush the buffer if the input doesn't fit
@@ -60,5 +60,18 @@ public class ESBulkProxy {
             if actionBytes.last != NewLine { actionBytes.append(NewLine)}
         }
         try append(bytes: actionBytes)
+    }
+    
+    public func append(action: ESBulkAction = .index, indexable: ESIndexable, in context: ESContext? = nil) throws {
+        let indexableType = type(of: indexable)
+        let data : JSONStringRepresentable?
+        
+        switch action {
+        case .delete:
+            data = nil
+        default:
+            data = try indexable.serializeES(in: context)
+        }
+        try self.append(action: action, index: indexableType.esIndex, type: indexableType.esType, id: indexable.esId, data: data)
     }
 }
