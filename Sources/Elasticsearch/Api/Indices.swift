@@ -34,7 +34,7 @@ public extension ESClient {
     
     public func ensureIndex(name: ESIndexNameable, fromFile file: String) throws {
         guard FileManager.default.fileExists(atPath: file) else { throw ESError.indexFileNotFound(file) }
-        let body = try String(contentsOfFile: file)
+        let body = try String(contentsOfFile: file, encoding: .utf8)
         try ensureIndex(name: name, body: body)
     }
 }

@@ -1,6 +1,5 @@
 import XCTest
-@testable import elasticsearch_swiftTests
+@testable import ElasticsearchTests
 
 XCTMain([
-     testCase(elasticsearch_swiftTests.allTests),
 ])
