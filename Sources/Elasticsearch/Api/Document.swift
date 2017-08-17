@@ -101,4 +101,8 @@ extension ESClient : ESIndexer {
     public func delete(_ indexable: ESIndexable) throws {
         try _ = delete(indexable, parameters: [:])
     }
+    
+    // Noop to satisfy ESIndexer protocol
+    public func flush() throws {
+    }
 }

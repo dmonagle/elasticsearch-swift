@@ -12,5 +12,5 @@
 public protocol ESIndexer {
     func index(_ indexable: ESIndexable, in context: ESContext?) throws
     func delete(_ indexable: ESIndexable) throws
-
+    func flush() throws 
 }
