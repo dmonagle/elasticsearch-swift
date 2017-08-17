@@ -75,3 +75,13 @@ public class ESBulkProxy {
         try self.append(action: action, index: indexableType.esIndex, type: indexableType.esType, id: indexable.esId, data: data)
     }
 }
+
+extension ESBulkProxy : ESIndexer {
+    public func index(_ indexable: ESIndexable, in context: ESContext?) throws {
+        try append(action: .index, indexable: indexable, in: context)
+    }
+    
+    public func delete(_ indexable: ESIndexable) throws {
+        try append(action: .delete, indexable: indexable)
+    }
+}

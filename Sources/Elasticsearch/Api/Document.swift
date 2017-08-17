@@ -1,4 +1,4 @@
-public extension ESClient {
+extension ESClient : ESIndexer {
     // MARK: - Get
     public func get(parameters: ESParams = [:]) throws -> ESResponse {
         let index = try parameters.enforce("index")
@@ -72,6 +72,10 @@ public extension ESClient {
         return try self.index(index: indexable.esIndex, type: indexable.esType, data: indexable.serializeES(in: context), parameters: requestParams)
     }
     
+    public func index(_ indexable: ESIndexable, in context: ESContext?) throws {
+        try _ = index(indexable, in: context, parameters: [:])
+    }
+    
     // MARK: - Delete
     
     public func delete(parameters: ESParams = [:]) throws -> ESResponse {
@@ -94,4 +98,7 @@ public extension ESClient {
         return try self.delete(index: indexable.esIndex, type: indexable.esType, id: indexable.esId, parameters: parameters)
     }
     
+    public func delete(_ indexable: ESIndexable) throws {
+        try _ = delete(indexable, parameters: [:])
+    }
 }
