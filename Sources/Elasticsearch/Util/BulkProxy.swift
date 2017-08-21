@@ -52,9 +52,11 @@ public class ESBulkProxy {
         totalRecords += 1
     }
     
-    public func append(action: ESBulkAction, index: ESIndexNameable, type: String, id: String, data: JSONStringRepresentable?) throws {
+    public func append(action: ESBulkAction, index: ESIndexNameable, type: String, id: String, parentId: String? = nil, data: JSONStringRepresentable?) throws {
         guard let prefixedIndex = client.prefixIndex(index).string else { throw ESError.missingIndexName }
-        var actionBytes = "{\"\(action.rawValue)\":{\"_index\":\"\(prefixedIndex)\",\"_type\":\"\(type)\",\"_id\":\"\(id)\"}}\n".bytes
+        
+        let parent = parentId == nil ? "" : ",\"_parent\": \"\(parentId!)\""
+        var actionBytes = "{\"\(action.rawValue)\":{\"_index\":\"\(prefixedIndex)\"\(parent),\"_type\":\"\(type)\",\"_id\":\"\(id)\"}}\n".bytes
         if let jsonBytes = data?.JSONString()?.bytes {
             actionBytes += jsonBytes
             if actionBytes.last != NewLine { actionBytes.append(NewLine)}
@@ -72,7 +74,7 @@ public class ESBulkProxy {
         default:
             data = try indexable.serializeES(in: context)
         }
-        try self.append(action: action, index: indexableType.esIndex, type: indexableType.esType, id: indexable.esId, data: data)
+        try self.append(action: action, index: indexableType.esIndex, type: indexableType.esType, id: indexable.esId, parentId: indexable.esParentId, data: data)
     }
 }
 
