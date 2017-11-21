@@ -132,7 +132,7 @@ open class ESTransport {
                 let requestURL = url.appendingPathComponent(path)
                 var request = URLRequest(url: requestURL)
                 request.httpMethod = method.rawValue
-                request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.timeoutInterval = _settings.requestTimeout
 
                 logger?.log(.info, message: "\(method) \(path)?\(query.queryString())")
